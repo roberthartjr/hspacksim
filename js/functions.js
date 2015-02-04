@@ -48,6 +48,39 @@ function getNumRarity(rarity)
 
 	return rarities;
 }
+
+function checkRarity()
+{
+	if(getNumRarity("Common") == 0 && allcommons == false)
+	{
+		alert("You have collected all Commons");
+		allcommons = true;
+	}
+
+	if(getNumRarity("Rare") == 0 && allrares == false)
+	{
+		alert("You have collected all Rares");
+		allrares = true;
+	}
+
+	if(getNumRarity("Epic") == 0 && allepics == false)
+	{
+		alert("You have collected all Epics");
+		allepics = true;
+	}
+
+	if(getNumRarity("Legendary") == 0 && all_legendaries == false)
+	{
+		alert("You have collected all Legendaries");
+		all_legendaries = true;
+	}	
+
+	if(total_cards_in_set.length == 0)
+	{
+		alert("You have collected the whole set")
+	}	
+}
+
 //Parses totalSeconds into a readable format
 function getTime() {
 	var hours = parseInt(totalSeconds / 3600) % 24,
@@ -172,6 +205,7 @@ function buildCardArrays() {
 						else if (cards.rarity == 'Legendary') {
 							legendary.push(image_prefix + cards.id + image_postfix);
 							legendary_name.push(cards.name);
+
 							total_cards_in_set.push(new CardData(cards.name, cards.rarity));
 						}
 					}
@@ -336,30 +370,6 @@ function drawCards(quality, cards) {
 	//Now for the fun stuff...
 	cardInteraction(quality);
 
-	if(getNumRarity("Common") == 0 && allcommons == false)
-	{
-		alert("You have collected all Commons");
-		allcommons = true;
-	}
-
-	if(getNumRarity("Rare") == 0 && allrares == false)
-	{
-		alert("You have collected all Rares");
-		allrares = true;
-	}
-
-	if(getNumRarity("Epic") == 0 && allepics == false)
-	{
-		alert("You have collected all Epics");
-		allepics = true;
-	}
-
-	if(getNumRarity("Legendary") == 0 && all_legendaries == false)
-	{
-		alert("You have collected all Legendaries");
-		all_legendaries = true;
-	}		
-
 };
 
 function cardInteraction(quality) {
@@ -470,6 +480,7 @@ function cardInteraction(quality) {
 
 				//If all five cards have been revealed...
 				if (cards_shown > 4) {
+
 					//Then after a brief delay, show the 'Done' button and play its reveal sound
 					setTimeout(function() {
 						var done_reveal = new Audio();
@@ -478,6 +489,9 @@ function cardInteraction(quality) {
 						setTimeout(function() {
 							$('#done').stop(true).fadeIn(750);
 							done_reveal.play();
+
+							// check if we have completed all the cards of a set
+							checkRarity();								
 						}, 500);
 					}, 500);
 				}
@@ -577,10 +591,6 @@ function tallyStats(quality) {
 		card_totals['total_packs'] = Math.ceil(card_totals['total_cards'] / 5);
 		card_totals['cards_left'] = total_cards_in_set.length;
 
-		if(total_cards_in_set.length == 0)
-		{
-			alert("You have collected the whole set")
-		}
 
 		if (quality == 'common')
 			totalDust += 5;
