@@ -1,3 +1,19 @@
+// class to hold card data
+function CardData(name, rarity)
+{
+	this.name = name;
+	this.rarity = rarity;
+}
+
+// holds an array of total cards in set
+var total_cards_in_set = [];
+
+var allcommons = false;
+var allrares = false;
+var allepics = false;
+var all_legendaries = false;
+
+
 //Global variable for volume control; default: 50%
 var volume = 0.5;
 //var json_card_set = "Goblins vs Gnomes.enUS.json";
@@ -18,6 +34,20 @@ window.onload = function() {
   }, 1000);
 };
 
+// Gets the number of rarities remaining in the set
+function getNumRarity(rarity)
+{
+	var rarities = 0;
+	for(var x=0; x<total_cards_in_set.length; x++)
+	{
+		if(total_cards_in_set[x].rarity == rarity)
+		{
+			rarities++;
+		}
+	}
+
+	return rarities;
+}
 //Parses totalSeconds into a readable format
 function getTime() {
 	var hours = parseInt(totalSeconds / 3600) % 24,
@@ -86,6 +116,12 @@ var common = [],
 	epic = [],
 	legendary = [];
 
+// Initialize the name of the card in they arrays
+var common_name = [],
+	rare_name = [],
+	epic_name = [],
+	legendary_name = [];
+
 function buildCardArrays() {
 
 	//Get five new card rolls
@@ -106,16 +142,37 @@ function buildCardArrays() {
 					if (cards.collectible == true) {
 						if (cards.rarity == 'Common') {
 							common.push(image_prefix + cards.id + image_postfix);
+							common_name.push(cards.name);
+
+							for(var x=0; x<2; x++)
+							{
+								total_cards_in_set.push(new CardData(cards.name, cards.rarity));
+							}
+
 							//alert(image_prefix + cards.id);
 						}
 						else if (cards.rarity == 'Rare') {
 							rare.push(image_prefix + cards.id + image_postfix);
+							rare_name.push(cards.name);
+
+							for(var x=0; x<2; x++)
+							{
+								total_cards_in_set.push(new CardData(cards.name, cards.rarity));
+							}							
 						}
 						else if (cards.rarity == 'Epic') {
 							epic.push(image_prefix + cards.id + image_postfix);
+							epic_name.push(cards.name);
+
+							for(var x=0; x<2; x++)
+							{
+								total_cards_in_set.push(new CardData(cards.name, cards.rarity));
+							}							
 						}
 						else if (cards.rarity == 'Legendary') {
 							legendary.push(image_prefix + cards.id + image_postfix);
+							legendary_name.push(cards.name);
+							total_cards_in_set.push(new CardData(cards.name, cards.rarity));
 						}
 					}
 
@@ -156,8 +213,17 @@ function getCards(rolls, common, rare, epic, legendary) {
 		if (rolls[i] < 75) {
 
 			//Get the appropriate image URL from the common array
-			tempCard = common[Math.floor(Math.random() * common.length)];
-
+			var common_index = Math.floor(Math.random() * common.length);
+			tempCard =  common[common_index];
+			//tempCard = common[Math.floor(Math.random() * common.length)];
+			for(var x=0; x<total_cards_in_set.length; x++)
+			{
+				if(total_cards_in_set[x].name == common_name[common_index])
+				{
+					total_cards_in_set.splice(x,1);
+					break;
+				}
+			}
 			//Do a roll to determine if the common is golden (supposedly 1/50 cards, 1/10 packs, or 2% overall)
 			//If you get 3.7 commons per pack, and 10 packs is 37 commons, then 1 out of 37 should be golden (i.e. ~2.7% of commons are golden)
 			if (getRandomInt(1, 37) == 37) {
@@ -172,8 +238,18 @@ function getCards(rolls, common, rare, epic, legendary) {
 		//If the card's roll is in the range of 75-95 (21% chance), it's a rare
 		//If the card's roll is greater than 100, it's also a rare due to the guarantee
 		if ((rolls[i] > 74 && rolls[i] < 96) || rolls[i] > 100) {
-			tempCard = rare[Math.floor(Math.random() * rare.length)];
+			var rare_index = Math.floor(Math.random() * rare.length);
+			tempCard = rare[rare_index];
+			//tempCard = rare[Math.floor(Math.random() * rare.length)];
 
+			for(var x=0; x<total_cards_in_set.length; x++)
+			{
+				if(total_cards_in_set[x].name == rare_name[rare_index])
+				{
+					total_cards_in_set.splice(x,1);
+					break;
+				}
+			}
 			//Do a roll to determine if the rare is golden (supposedly 1/100 cards, 1/20 packs, or 1% overall)
 			//If you get roughly 1.1 rares per pack, and 20 packs is 22 rares, then 1 out of 22 should be golden (i.e. ~4.55% of rares are golden)
 			//But then there's the 'rare guarantee,'' which skews this, so I'm arbitrarily lowering chances by ~25%... sigh...
@@ -188,7 +264,18 @@ function getCards(rolls, common, rare, epic, legendary) {
 
 		//If the card's roll is in the range of 96-99 (4% chance), it's an epic
 		if (rolls[i] > 95 && rolls[i] < 100) {
-			tempCard = epic[Math.floor(Math.random() * epic.length)];
+			var epic_index = Math.floor(Math.random() * epic.length);
+			tempCard = epic[epic_index];
+			//tempCard = epic[Math.floor(Math.random() * epic.length)];
+
+			for(var x=0; x<total_cards_in_set.length; x++)
+			{
+				if(total_cards_in_set[x].name == epic_name[epic_index])
+				{
+					total_cards_in_set.splice(x,1);
+					break;
+				}
+			}			
 
 			//Do a roll to determine if the epic is golden (supposedly 1/400 cards, 1/80 packs, or 0.25% overall)
 			//If you get roughly 0.2 epics per pack, and 80 packs is 16 epics, then 1/16 should be golden (i.e. ~6.25% of epics are golden)
@@ -203,7 +290,18 @@ function getCards(rolls, common, rare, epic, legendary) {
 
 		//If the card's roll is a perfect 100 (1% chance), it's a legendary
 		if (rolls[i] == 100) {
-			tempCard = legendary[Math.floor(Math.random() * legendary.length)];
+			var legendary_index = Math.floor(Math.random() * legendary.length);
+			tempCard = legendary[legendary_index];
+			//tempCard = legendary[Math.floor(Math.random() * legendary.length)];
+
+			for(var x=0; x<total_cards_in_set.length; x++)
+			{
+				if(total_cards_in_set[x].name == legendary_name[legendary_index])
+				{
+					total_cards_in_set.splice(x,1);
+					break;
+				}
+			}				
 
 			//Do a roll to determine if the legendary is golden (supposedly 1/2000 cards, 1/400 packs, or 0.05% overall)
 			//If you get roughly 0.05 legendaries per pack, and 400 packs is 20 legendaries, then 1/20 should be golden (i.e. ~5% of legendaries are golden)
@@ -216,6 +314,7 @@ function getCards(rolls, common, rare, epic, legendary) {
 			}
 		}
 	};
+
 
 	//Send these results to the drawCards function, which will place the respective cards on the DOM
 	drawCards(quality, cards);
@@ -236,6 +335,30 @@ function drawCards(quality, cards) {
 
 	//Now for the fun stuff...
 	cardInteraction(quality);
+
+	if(getNumRarity("Common") == 0 && allcommons == false)
+	{
+		alert("You have collected all Commons");
+		allcommons = true;
+	}
+
+	if(getNumRarity("Rare") == 0 && allrares == false)
+	{
+		alert("You have collected all Rares");
+		allrares = true;
+	}
+
+	if(getNumRarity("Epic") == 0 && allepics == false)
+	{
+		alert("You have collected all Epics");
+		allepics = true;
+	}
+
+	if(getNumRarity("Legendary") == 0 && all_legendaries == false)
+	{
+		alert("You have collected all Legendaries");
+		all_legendaries = true;
+	}		
 
 };
 
@@ -432,7 +555,7 @@ var card_totals = {
 	total_packs: 0,
 	total_dust: 0,
 	total_money: 0,
-	time_spent: 0
+	cards_left: 0
 };
 
 //Make the first letter of each word in a string uppercase
@@ -452,6 +575,12 @@ function tallyStats(quality) {
 		card_totals[quality]++;
 		card_totals['total_cards']++;
 		card_totals['total_packs'] = Math.ceil(card_totals['total_cards'] / 5);
+		card_totals['cards_left'] = total_cards_in_set.length;
+
+		if(total_cards_in_set.length == 0)
+		{
+			alert("You have collected the whole set")
+		}
 
 		if (quality == 'common')
 			totalDust += 5;
@@ -491,7 +620,7 @@ function tallyStats(quality) {
 		}
 
 	} else {
-		card_totals['time_spent'] = getTime();
+		//card_totals['time_spent'] = getTime();
 	}
 
 	//Build the HTML to be appended to the stats panel
@@ -504,7 +633,7 @@ function tallyStats(quality) {
 				var percent = ' (' + (parseInt(card_totals[key]) / parseInt(card_totals['total_cards']) * 100).toFixed(2) + '%)';
 			else
 				var percent = ' (0%)';
-			html += label + ': <span class="right">' + total + ((key == 'total_cards' || key == 'total_packs' || key == 'total_dust' || key == 'total_money' || key == 'time_spent') ? '' : percent) + '</span><br/>';
+			html += label + ': <span class="right">' + total + ((key == 'total_cards' || key == 'total_packs' || key == 'total_dust' || key == 'total_money' || key == 'cards_left') ? '' : percent) + '</span><br/>';
 		}
 	}
 
